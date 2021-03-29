@@ -12,6 +12,9 @@ import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 
 import javax.sql.DataSource;
+import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @Describe
@@ -32,6 +35,13 @@ public class AppConfig {
     private String username;
     @Value("${jdbc.password}")
     private String password;
+
+    @Value("${threadpool.corenum}")
+    private int corenum;
+    @Value("${threadpool.maxnum}")
+    private int maxnum;
+    @Value("${threadpool.keeplive}")
+    private long keeplive;
 
 
     @Bean
@@ -55,5 +65,13 @@ public class AppConfig {
         SqlSessionFactory object = factoryBean.getObject();
         System.out.println(object);
         return object;
+    }
+
+    // 线程池
+    @Bean
+    public ThreadPoolExecutor threadPoolExecutor() {
+        ThreadPoolExecutor executor = new ThreadPoolExecutor(corenum, maxnum, keeplive, TimeUnit.SECONDS,
+                new LinkedBlockingDeque<>(2000));
+        return executor;
     }
 }
